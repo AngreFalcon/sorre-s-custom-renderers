@@ -3,23 +3,30 @@ local ui = require('openmw.ui')
 local async = require('openmw.async')
 
 local function capitalizeText(text: string): string
-	local capitalizedText: string = ""
-	for i = 1, (#text) do
-		local char = text:sub(i,i)
-		local prevChar = text:sub(#capitalizedText, #capitalizedText)
-		if i == 1 then
-			capitalizedText = char:upper()
-		elseif prevChar ~= nil and prevChar == " " then
-			capitalizedText = capitalizedText .. char:upper()
+    local capitalizedText: string = ""
+    local i: integer = 1
+    capitalizedText = text:sub(i, i):upper()
+	i = i + 1
+    while i <= #text do
+        local j = text:find(" ", i)
+        if j ~= nil then
+            capitalizedText = capitalizedText .. text:sub(i, j) .. text:sub(j + 1, j + 1):upper()
+            i = j + 2
 		else
-			capitalizedText = capitalizedText .. char
-		end
-	end
-	return capitalizedText
+			break
+        end
+    end
+	capitalizedText = capitalizedText .. text:sub(i, #text)
+    return capitalizedText
+end
+
+local interface TextSetArgs
+    keys: { string } -- the list of keys that this
+    lowercase: boolean -- if true, all inputs are automatically cast to lowercase when adding to list
 end
 
 -- huge credit to SosnoviyBor on NexusMods for providing their Text Set Settings Renderer, from which this renderer was derived
-I.Settings.registerRenderer('textset', function(input: { string }, set: function, arguments: { string }): any
+I.Settings.registerRenderer('textset', function(input: { string }, set: function, args: TextSetArgs): any
     if input == nil then
         input = {}
         set(input)
@@ -53,14 +60,15 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
 						for _, v in ipairs(input) do
 							if v == inputText then return end -- we only want one instance of this string in our list
 						end
-						if arguments ~= nil then
+						if args.keys ~= nil then
 							local i: integer = 1
-							while i <= #arguments do
-								if arguments[i] == inputText then break end
+							while i <= #args.keys do
+								if args.keys[i] == inputText then break end
 								i = i + 1
 							end
-							if i > #arguments then return end
+							if i > #args.keys then return end
 						end
+                        if args.lowercase ~= nil and args.lowercase == true then inputText = inputText:lower() end
 						input[#input + 1] = inputText
                         set(input)
                     end),
@@ -150,7 +158,8 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
 end)
 
 local interface MultiSelectArgs
-    keys: { string }
+    keys: { string } -- the list of values to render for the setting. regardless of our default values, the only buttons that will display on our settings page is what's passed in to this argument
+    aliases: { string: string } -- this optional argument contains a table of aliases to display instead of the raw key for our buttons
 end
 
 -- input is a table of default values for the specified keys. if the key used is not present in our buttons argument, however, it will not appear in our settings menu
@@ -176,6 +185,8 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 
     for _, text in ipairs(args.keys) do
 		local alpha: number = 0.5
+        local display: string = text
+        if args.aliases ~= nil and args.aliases[text] ~= nil then display = args.aliases[text] end
 		if input[text] == true then
 			alpha = 1.0
 		end
@@ -190,7 +201,7 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
                 content = ui.content { {
                     template = I.MWUI.templates.textNormal,
                     props = { 
-						text = capitalizeText(text),
+						text = capitalizeText(display),
 						alpha = alpha,
 					},
                 } },
@@ -213,10 +224,10 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 end)
 
 local interface MultiNumArgs
-    keys: { string }
-    integer: boolean
-    max: { string: number }
-    min: { string: number }
+    keys: { string } -- each key in this list corresponds to an input for this multinum setting
+    integer: boolean -- if true, each of the inputs for this multinum will be rounded to the nearest integer value
+    max: { string: number } -- each number in this table is the maximum value that can be set for the setting corresponding to the key
+    min: { string: number } -- each number in this table is the minimum value that can be set for the setting corresponding to the key
 end
 
 I.Settings.registerRenderer('multinumber', function(input: { string: number } , set: function, args: MultiNumArgs): any

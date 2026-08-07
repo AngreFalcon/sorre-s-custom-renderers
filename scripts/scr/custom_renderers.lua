@@ -4,22 +4,29 @@ local async = require('openmw.async')
 
 local function capitalizeText(text)
    local capitalizedText = ""
-   for i = 1, (#text) do
-      local char = text:sub(i, i)
-      local prevChar = text:sub(#capitalizedText, #capitalizedText)
-      if i == 1 then
-         capitalizedText = char:upper()
-      elseif prevChar ~= nil and prevChar == " " then
-         capitalizedText = capitalizedText .. char:upper()
+   local i = 1
+   capitalizedText = text:sub(i, i):upper()
+   i = i + 1
+   while i <= #text do
+      local j = text:find(" ", i)
+      if j ~= nil then
+         capitalizedText = capitalizedText .. text:sub(i, j) .. text:sub(j + 1, j + 1):upper()
+         i = j + 2
       else
-         capitalizedText = capitalizedText .. char
+         break
       end
    end
+   capitalizedText = capitalizedText .. text:sub(i, #text)
    return capitalizedText
 end
 
 
-I.Settings.registerRenderer('textset', function(input, set, arguments)
+
+
+
+
+
+I.Settings.registerRenderer('textset', function(input, set, args)
    if input == nil then
       input = {}
       set(input)
@@ -53,14 +60,15 @@ I.Settings.registerRenderer('textset', function(input, set, arguments)
                   for _, v in ipairs(input) do
                      if v == inputText then return end
                   end
-                  if arguments ~= nil then
+                  if args.keys ~= nil then
                      local i = 1
-                     while i <= #arguments do
-                        if arguments[i] == inputText then break end
+                     while i <= #args.keys do
+                        if args.keys[i] == inputText then break end
                         i = i + 1
                      end
-                     if i > #arguments then return end
+                     if i > #args.keys then return end
                   end
+                  if args.lowercase ~= nil and args.lowercase == true then inputText = inputText:lower() end
                   input[#input + 1] = inputText
                   set(input)
                end),
@@ -155,6 +163,7 @@ end)
 
 
 
+
 I.Settings.registerRenderer('multiselect', function(input, set, args)
    if input == nil then input = {} end
    if args.keys ~= nil then
@@ -176,6 +185,8 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
 
    for _, text in ipairs(args.keys) do
       local alpha = 0.5
+      local display = text
+      if args.aliases ~= nil and args.aliases[text] ~= nil then display = args.aliases[text] end
       if input[text] == true then
          alpha = 1.0
       end
@@ -190,7 +201,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
             content = ui.content({ {
                template = I.MWUI.templates.textNormal,
                props = {
-                  text = capitalizeText(text),
+                  text = capitalizeText(display),
                   alpha = alpha,
                },
             }, }),
