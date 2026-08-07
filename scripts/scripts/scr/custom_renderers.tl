@@ -21,12 +21,13 @@ local function capitalizeText(text: string): string
 end
 
 local interface TextSetArgs
-    keys: { string } -- the list of keys that this
+    keys: { string } -- optional argument to restrict what keys can be entered by the user. if empty, any keys are valid; otherwise, only inputs matching the contents of this list are accepted
     lowercase: boolean -- if true, all inputs are automatically cast to lowercase when adding to list
 end
 
 -- huge credit to SosnoviyBor on NexusMods for providing their Text Set Settings Renderer, from which this renderer was derived
 I.Settings.registerRenderer('textset', function(input: { string }, set: function, args: TextSetArgs): any
+    if args == nil then args = {} end
     if input == nil then
         input = {}
         set(input)
@@ -60,7 +61,7 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
 						for _, v in ipairs(input) do
 							if v == inputText then return end -- we only want one instance of this string in our list
 						end
-						if args.keys ~= nil then
+						if args.keys ~= nil and #args.keys > 1 then
 							local i: integer = 1
 							while i <= #args.keys do
 								if args.keys[i] == inputText then break end
@@ -166,6 +167,7 @@ end
 -- buttons will be our supplied list of buttons. this list represents exactly what buttons are rendered in our settings menu; if a key is not present in our buttons list, it will not be rendered even if input contains it
 I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, set: function, args: MultiSelectArgs): any
     if input == nil then input = {} end
+    if args == nil then args = {} end
 	if args.keys ~= nil then
 		for _, text in ipairs(args.keys) do
 			if input[text] == nil then
@@ -232,6 +234,7 @@ end
 
 I.Settings.registerRenderer('multinumber', function(input: { string: number } , set: function, args: MultiNumArgs): any
     local lastInput: { string: number} = {}
+    if args == nil then args = {} end
 	if args.keys ~= nil then
         for _, k in ipairs(args.keys) do
             if input[k] == nil then

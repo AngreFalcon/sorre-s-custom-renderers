@@ -27,6 +27,7 @@ end
 
 
 I.Settings.registerRenderer('textset', function(input, set, args)
+   if args == nil then args = {} end
    if input == nil then
       input = {}
       set(input)
@@ -60,7 +61,7 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                   for _, v in ipairs(input) do
                      if v == inputText then return end
                   end
-                  if args.keys ~= nil then
+                  if args.keys ~= nil and #args.keys > 1 then
                      local i = 1
                      while i <= #args.keys do
                         if args.keys[i] == inputText then break end
@@ -166,6 +167,7 @@ end)
 
 I.Settings.registerRenderer('multiselect', function(input, set, args)
    if input == nil then input = {} end
+   if args == nil then args = {} end
    if args.keys ~= nil then
       for _, text in ipairs(args.keys) do
          if input[text] == nil then
@@ -232,6 +234,7 @@ end)
 
 I.Settings.registerRenderer('multinumber', function(input, set, args)
    local lastInput = {}
+   if args == nil then args = {} end
    if args.keys ~= nil then
       for _, k in ipairs(args.keys) do
          if input[k] == nil then
