@@ -23,6 +23,7 @@ end
 local interface TextSetArgs
     keys: { string } -- optional argument to restrict what keys can be entered by the user. if empty, any keys are valid; otherwise, only inputs matching the contents of this list are accepted
     lowercase: boolean -- if true, all inputs are automatically cast to lowercase when adding to list
+    pretty: boolean -- if true, inputs will be made proper case when displaying to the user. the effect is purely visual
 end
 
 -- huge credit to SosnoviyBor on NexusMods for providing their Text Set Settings Renderer, from which this renderer was derived
@@ -112,6 +113,8 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
     end
 
     for _, text in ipairs(input) do
+        local display: string = text
+        if args.pretty == true then display = capitalizeText(text) end
         body.content:add {
             template = I.MWUI.templates.padding,
         }
@@ -143,7 +146,7 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
                 },
                 {
                     template = I.MWUI.templates.textNormal,
-                    props = { text = capitalizeText(text) },
+                    props = { text = display },
                 },
             },
         }
