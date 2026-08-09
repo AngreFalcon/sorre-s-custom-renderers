@@ -52,6 +52,7 @@ I.Settings.registerRenderer('textset', function(input, set, args)
    }
 
    local inputText = ''
+
    header.content:add({
       template = I.MWUI.templates.box,
       content = ui.content({ {
@@ -66,7 +67,7 @@ I.Settings.registerRenderer('textset', function(input, set, args)
 
                   if inputText == "" then return end
                   if input[inputText] ~= nil then return end
-                  if args.keys ~= nil and #args.keys > 1 then
+                  if args.keys ~= nil and #args.keys >= 1 then
                      local i = 1
                      while i <= #args.keys do
                         if args.keys[i] == inputText then break end
@@ -82,12 +83,14 @@ I.Settings.registerRenderer('textset', function(input, set, args)
          }, }),
       }, }),
    })
+
    header.content:add({
       template = I.MWUI.templates.padding,
       external = {
          grow = 1,
       },
    })
+
    header.content:add({
       template = I.MWUI.templates.box,
       content = ui.content({ {
@@ -98,9 +101,9 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                textChanged = async:callback(function(text)
                   inputText = text
                end),
-            }, },
-         }), },
-      }),
+            },
+         }, }),
+      }, }),
    })
 
    local body = {
@@ -117,9 +120,11 @@ I.Settings.registerRenderer('textset', function(input, set, args)
       local alpha = 0.5
       if args.pretty == true then display = capitalizeText(text) end
       if input[text] == true then alpha = 1.0 end
+
       body.content:add({
          template = I.MWUI.templates.padding,
       })
+
       body.content:add({
          template = I.MWUI.templates.box,
          content = ui.content({ {
@@ -131,16 +136,16 @@ I.Settings.registerRenderer('textset', function(input, set, args)
             content = ui.content({
                {
                   template = I.MWUI.templates.padding,
+                  events = {
+                     mouseClick = async:callback(function()
+                        remove(text)
+                        set(input)
+                     end),
+                  },
                   content = ui.content({ {
                      template = I.MWUI.templates.textNormal,
                      props = {
                         text = removeText,
-                     },
-                     events = {
-                        mouseClick = async:callback(function()
-                           remove(text)
-                           set(input)
-                        end),
                      },
                   }, }),
                },
@@ -155,6 +160,12 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                },
                {
                   template = I.MWUI.templates.padding,
+                  events = {
+                     mouseClick = async:callback(function()
+                        input[text] = input[text] == false
+                        set(input)
+                     end),
+                  },
                   content = ui.content({ {
                      template = I.MWUI.templates.textNormal,
                      props = {
@@ -162,12 +173,6 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                         alpha = alpha,
                      },
                   }, }),
-                  events = {
-                     mouseClick = async:callback(function()
-                        input[text] = input[text] == false
-                        set(input)
-                     end),
-                  },
                },
             }),
          }, }),
@@ -221,6 +226,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       body.content:add({
          template = I.MWUI.templates.padding,
       })
+
       body.content:add({
          template = I.MWUI.templates.box,
          content = ui.content({ {
@@ -300,11 +306,9 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
             },
             {
                template = I.MWUI.templates.padding,
-               props = {},
             },
             {
                template = I.MWUI.templates.box,
-               props = {},
                content = ui.content({ {
                   template = I.MWUI.templates.padding,
                   content = ui.content({ {

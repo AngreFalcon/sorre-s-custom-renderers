@@ -52,6 +52,7 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
     }
 
     local inputText: string = ''
+
     header.content:add {
         template = I.MWUI.templates.box,
         content = ui.content { {
@@ -66,28 +67,30 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                         -- no empty strings allowed
                         if inputText == "" then return end
                         if input[inputText] ~= nil then return end -- we only want one instance of this string in our list
-						if args.keys ~= nil and #args.keys > 1 then
+						if args.keys ~= nil and #args.keys >= 1 then -- if our whitelist is not empty, compare the new key against it
 							local i: integer = 1
 							while i <= #args.keys do
-								if args.keys[i] == inputText then break end
+								if args.keys[i] == inputText then break end -- check to make sure the key being inserted exist in our whitelist
 								i = i + 1
 							end
-							if i > #args.keys then return end
+							if i > #args.keys then return end -- if we did not find the new key in our whitelist, return and do not insert the new key into our set
 						end
                         if args.lowercase ~= nil and args.lowercase == true then inputText = inputText:lower() end
 						input[inputText] = true
                         set(input)
                     end),
                 },
-            } }
+            } },
         } },
     }
+
     header.content:add {
         template = I.MWUI.templates.padding,
         external = {
             grow = 1,
         },
     }
+
     header.content:add {
         template = I.MWUI.templates.box,
         content = ui.content { {
@@ -98,9 +101,9 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                     textChanged = async:callback(function(text: string)
                         inputText = text
                     end),
-                } },
+                },
             } },
-        },
+        } },
     }
 
     local body = {
@@ -117,9 +120,11 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
 		local alpha: number = 0.5
         if args.pretty == true then display = capitalizeText(text) end
 		if input[text] == true then alpha = 1.0 end
+        
         body.content:add {
             template = I.MWUI.templates.padding,
         }
+
         body.content:add {
             template = I.MWUI.templates.box,
             content = ui.content { { 
@@ -131,16 +136,16 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                 content = ui.content {
                     {
                         template = I.MWUI.templates.padding,
+                        events = {
+                            mouseClick = async:callback(function()
+                                remove(text)
+                                set(input)
+                            end),
+                        },
                         content = ui.content { {
                             template = I.MWUI.templates.textNormal,
                             props = {
                                 text = removeText,
-                            },
-                            events = {
-                                mouseClick = async:callback(function()
-                                    remove(text)
-                                    set(input)
-                                end),
                             },
                         } },
                     },
@@ -149,12 +154,18 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                         content = ui.content { {
                             template = I.MWUI.templates.textNormal,
                             props = {
-                                text = '|'
+                                text = '|',
                             },
-                        } }
+                        } },
                     },
                     {
                         template = I.MWUI.templates.padding,
+                        events = {
+                            mouseClick = async:callback(function()
+			                	input[text] = input[text] == false
+                                set(input)
+                            end),
+                        },
                         content = ui.content { {
                             template = I.MWUI.templates.textNormal,
                             props = { 
@@ -162,15 +173,9 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                                 alpha = alpha,
                             },
                         } },
-                        events = {
-                            mouseClick = async:callback(function()
-			                	input[text] = input[text] == false
-                                set(input)
-                            end),
-                        },
                     },
                 },
-            } } 
+            } },
         }
     end
 
@@ -219,8 +224,9 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 		end
 		
         body.content:add {
-            template = I.MWUI.templates.padding
+            template = I.MWUI.templates.padding,
         }
+
         body.content:add {
             template = I.MWUI.templates.box,
             content = ui.content { {
@@ -279,7 +285,7 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
 
     for _, k in ipairs(args.keys) do
         body.content:add {
-            template = I.MWUI.templates.padding
+            template = I.MWUI.templates.padding,
         }
         body.content:add {
             type = ui.TYPE.Flex,
@@ -300,17 +306,15 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                 },
                 {
                     template = I.MWUI.templates.padding,
-                    props = {},
                 },
                 {
                     template = I.MWUI.templates.box,
-                    props = {},
                     content = ui.content { {
                         template = I.MWUI.templates.padding,
                         content = ui.content { {
                             template = I.MWUI.templates.textEditLine,
                             props = {
-                                text = tostring(input[k])
+                                text = tostring(input[k]),
                             },
                             events = {
                                 textChanged = async:callback(function(text)
@@ -337,7 +341,7 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                             },
                         } },
                     } },
-                }
+                },
             },
         }
     end
