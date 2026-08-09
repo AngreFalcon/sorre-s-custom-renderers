@@ -3,7 +3,6 @@ local storage = require('openmw.storage')
 
 I.Settings.registerPage {
     key = 'SettingsSorreCustomRenderersTest',
-    l10n = 'SettingsSorreCustomRenderersTest',
     name = 'Sorre\'s Custom Renderers - Examples',
     description = 'Example settings page for Sorre\'s custom renderers.',
 }
@@ -11,7 +10,6 @@ I.Settings.registerPage {
 I.Settings.registerGroup {
     page = 'SettingsSorreCustomRenderersTest',
     key = 'SettingsSorreCustomRenderersExamples',
-    l10n = 'SettingsSorreCustomRenderersExamples',
     name = 'Example Settings',
     description = 'Examples for Sorre\'s custom renderers.',
     permanentStorage = false,
