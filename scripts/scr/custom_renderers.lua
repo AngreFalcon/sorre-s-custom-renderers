@@ -121,19 +121,21 @@ I.Settings.registerRenderer('textset', function(input, set, args)
          template = I.MWUI.templates.padding,
       })
       body.content:add({
-         type = ui.TYPE.Flex,
-         props = {
-            horizontal = true,
-            arrange = ui.ALIGNMENT.Center,
-         },
-         content = ui.content({
-            {
-               template = I.MWUI.templates.box,
-               content = ui.content({ {
+         template = I.MWUI.templates.box,
+         content = ui.content({ {
+            type = ui.TYPE.Flex,
+            props = {
+               horizontal = true,
+               arrange = ui.ALIGNMENT.Center,
+            },
+            content = ui.content({
+               {
                   template = I.MWUI.templates.padding,
                   content = ui.content({ {
                      template = I.MWUI.templates.textNormal,
-                     props = { text = removeText },
+                     props = {
+                        text = removeText,
+                     },
                      events = {
                         mouseClick = async:callback(function()
                            remove(text)
@@ -141,11 +143,17 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                         end),
                      },
                   }, }),
-               }, }),
-            },
-            {
-               template = I.MWUI.templates.padding,
-               content = ui.content({ {
+               },
+               {
+                  template = I.MWUI.templates.padding,
+                  content = ui.content({ {
+                     template = I.MWUI.templates.textNormal,
+                     props = {
+                        text = '|',
+                     },
+                  }, }),
+               },
+               {
                   template = I.MWUI.templates.padding,
                   content = ui.content({ {
                      template = I.MWUI.templates.textNormal,
@@ -154,15 +162,15 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                         alpha = alpha,
                      },
                   }, }),
-               }, }),
-               events = {
-                  mouseClick = async:callback(function()
-                     input[text] = input[text] == false
-                     set(input)
-                  end),
+                  events = {
+                     mouseClick = async:callback(function()
+                        input[text] = input[text] == false
+                        set(input)
+                     end),
+                  },
                },
-            },
-         }),
+            }),
+         }, }),
       })
    end
 

@@ -24,6 +24,8 @@ I.Settings.registerGroup {
             argument = { 
                 keys = { "only", "these", "inputs", "are", "allowed", }, -- any values entered by the user that don't match one of these values will be ignored. this argument is optional; if absent, any inputs are valid. also affects defaults
 				lowercase = true, -- if true, all inputs will be cast to lowercase
+                pretty = true, -- if true, list entries will be cast to proper case. visual effect only, does not affect the underlying keys
+                removeText = 'x', -- the string that will be used for the remove button
             },
             description = 'Example use-case of the textset renderer.',
         },

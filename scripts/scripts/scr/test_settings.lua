@@ -24,6 +24,8 @@ I.Settings.registerGroup({
          argument = {
             keys = { "only", "these", "inputs", "are", "allowed" },
             lowercase = true,
+            pretty = true,
+            removeText = 'x',
          },
          description = 'Example use-case of the textset renderer.',
       },
