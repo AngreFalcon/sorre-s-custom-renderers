@@ -1,4 +1,4 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table; local I = require('openmw.interfaces')
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; local I = require('openmw.interfaces')
 local ui = require('openmw.ui')
 local async = require('openmw.async')
 
@@ -26,11 +26,18 @@ end
 
 
 
+
+
 I.Settings.registerRenderer('textset', function(input, set, args)
    if args == nil then args = {} end
    if input == nil then
       input = {}
       set(input)
+   end
+
+   local removeText = 'x'
+   if args.removeText ~= nil and args.removeText ~= "" then
+      removeText = args.removeText
    end
 
    local header = {
@@ -58,9 +65,7 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                mouseClick = async:callback(function()
 
                   if inputText == "" then return end
-                  for _, v in ipairs(input) do
-                     if v == inputText then return end
-                  end
+                  if input[inputText] ~= nil then return end
                   if args.keys ~= nil and #args.keys > 1 then
                      local i = 1
                      while i <= #args.keys do
@@ -70,7 +75,7 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                      if i > #args.keys then return end
                   end
                   if args.lowercase ~= nil and args.lowercase == true then inputText = inputText:lower() end
-                  input[#input + 1] = inputText
+                  input[inputText] = true
                   set(input)
                end),
             },
@@ -104,14 +109,14 @@ I.Settings.registerRenderer('textset', function(input, set, args)
    }
 
    local function remove(text)
-      for i, v in ipairs(input) do
-         if v == text then
-            table.remove(input, i)
-         end
-      end
+      input[text] = nil
    end
 
-   for _, text in ipairs(input) do
+   for text in pairs(input) do
+      local display = text
+      local alpha = 0.5
+      if args.pretty == true then display = capitalizeText(text) end
+      if input[text] == true then alpha = 1.0 end
       body.content:add({
          template = I.MWUI.templates.padding,
       })
@@ -128,7 +133,7 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                   template = I.MWUI.templates.padding,
                   content = ui.content({ {
                      template = I.MWUI.templates.textNormal,
-                     props = { text = "x" },
+                     props = { text = removeText },
                      events = {
                         mouseClick = async:callback(function()
                            remove(text)
@@ -140,10 +145,22 @@ I.Settings.registerRenderer('textset', function(input, set, args)
             },
             {
                template = I.MWUI.templates.padding,
-            },
-            {
-               template = I.MWUI.templates.textNormal,
-               props = { text = capitalizeText(text) },
+               content = ui.content({ {
+                  template = I.MWUI.templates.padding,
+                  content = ui.content({ {
+                     template = I.MWUI.templates.textNormal,
+                     props = {
+                        text = display,
+                        alpha = alpha,
+                     },
+                  }, }),
+               }, }),
+               events = {
+                  mouseClick = async:callback(function()
+                     input[text] = input[text] == false
+                     set(input)
+                  end),
+               },
             },
          }),
       })

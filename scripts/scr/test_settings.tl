@@ -20,7 +20,7 @@ I.Settings.registerGroup {
             key = 'textset',
             renderer = 'textset',
             name = 'Text Set Renderer',
-            default = { "only", "these", "inputs", }, -- these values will be automatically added if they aren't already
+            default = { ["only"] = true, ["these"] = false, ["inputs"] = true, }, -- these values will be automatically added if they aren't already
             argument = { 
                 keys = { "only", "these", "inputs", "are", "allowed", }, -- any values entered by the user that don't match one of these values will be ignored. this argument is optional; if absent, any inputs are valid. also affects defaults
 				lowercase = true, -- if true, all inputs will be cast to lowercase

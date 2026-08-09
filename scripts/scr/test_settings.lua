@@ -20,7 +20,7 @@ I.Settings.registerGroup({
          key = 'textset',
          renderer = 'textset',
          name = 'Text Set Renderer',
-         default = { "only", "these", "inputs" },
+         default = { ["only"] = true, ["these"] = false, ["inputs"] = true },
          argument = {
             keys = { "only", "these", "inputs", "are", "allowed" },
             lowercase = true,

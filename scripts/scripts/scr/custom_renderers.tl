@@ -24,14 +24,20 @@ local interface TextSetArgs
     keys: { string } -- optional argument to restrict what keys can be entered by the user. if empty, any keys are valid; otherwise, only inputs matching the contents of this list are accepted
     lowercase: boolean -- if true, all inputs are automatically cast to lowercase when adding to list
     pretty: boolean -- if true, inputs will be made proper case when displaying to the user. the effect is purely visual
+    removeText: string -- the text to display for the removal button. defaults to 'x'
 end
 
 -- huge credit to SosnoviyBor on NexusMods for providing their Text Set Settings Renderer, from which this renderer was derived
-I.Settings.registerRenderer('textset', function(input: { string }, set: function, args: TextSetArgs): any
+I.Settings.registerRenderer('textset', function(input: { string: boolean }, set: function, args: TextSetArgs): any
     if args == nil then args = {} end
     if input == nil then
         input = {}
         set(input)
+    end
+
+    local removeText: string = 'x'
+    if args.removeText ~= nil and args.removeText ~= "" then
+        removeText = args.removeText
     end
 
     local header = {
@@ -59,9 +65,7 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
                     mouseClick = async:callback(function()
                         -- no empty strings allowed
                         if inputText == "" then return end
-						for _, v in ipairs(input) do
-							if v == inputText then return end -- we only want one instance of this string in our list
-						end
+                        if input[inputText] ~= nil then return end -- we only want one instance of this string in our list
 						if args.keys ~= nil and #args.keys > 1 then
 							local i: integer = 1
 							while i <= #args.keys do
@@ -71,7 +75,7 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
 							if i > #args.keys then return end
 						end
                         if args.lowercase ~= nil and args.lowercase == true then inputText = inputText:lower() end
-						input[#input + 1] = inputText
+						input[inputText] = true
                         set(input)
                     end),
                 },
@@ -105,16 +109,14 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
     }
 
     local function remove(text: string)
-		for i, v in ipairs(input) do
-			if v == text then
-				table.remove(input, i)
-			end
-		end
+        input[text] = nil
     end
 
-    for _, text in ipairs(input) do
+    for text in pairs(input) do
         local display: string = text
+		local alpha: number = 0.5
         if args.pretty == true then display = capitalizeText(text) end
+		if input[text] == true then alpha = 1.0 end
         body.content:add {
             template = I.MWUI.templates.padding,
         }
@@ -131,7 +133,7 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
                         template = I.MWUI.templates.padding,
                         content = ui.content { {
                             template = I.MWUI.templates.textNormal,
-                            props = { text = "x" },
+                            props = { text = removeText },
                             events = {
                                 mouseClick = async:callback(function()
                                     remove(text)
@@ -143,10 +145,22 @@ I.Settings.registerRenderer('textset', function(input: { string }, set: function
                 },
                 {
                     template = I.MWUI.templates.padding,
-                },
-                {
-                    template = I.MWUI.templates.textNormal,
-                    props = { text = display },
+                    content = ui.content { {
+                        template = I.MWUI.templates.padding,
+                        content = ui.content { {
+                            template = I.MWUI.templates.textNormal,
+                            props = { 
+                                text = display,
+                                alpha = alpha,
+                            },
+                        } },
+                    } },
+                    events = {
+                        mouseClick = async:callback(function()
+			            	input[text] = input[text] == false
+                            set(input)
+                        end),
+                    },
                 },
             },
         }
