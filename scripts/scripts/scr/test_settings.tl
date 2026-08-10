@@ -26,6 +26,7 @@ I.Settings.registerGroup {
 				lowercase = true, -- if true, all inputs will be cast to lowercase
                 pretty = true, -- if true, list entries will be cast to proper case. visual effect only, does not affect the underlying keys
                 removeText = 'x', -- the string that will be used for the remove button
+                buttonWidth = 80, -- positive integer value that sets the width of the toggle button. defaults to 80. this value sets the minimum width of the button; if the button's label is longer than the box is wide, the box will stretch to accommodate it. if set to 0, button width will be defined only by the length of their label
             },
             description = 'Example use-case of the textset renderer.',
         },
@@ -37,7 +38,7 @@ I.Settings.registerGroup {
             argument = {
                 keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample", }, -- this list defines our collection of toggleable buttons. if any buttons are given a default value that don't appear in this list, they will be ignored
 				aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are", }, -- this table contains aliases for our buttons, to allow for prettier UI while still retaining descriptive keys for indexing
-                buttonWidth = 300, -- positive integer value representing the width of our buttons in pixels. defaults to 80. this value represents the minimum width of each button; if a button's label happens to be too long, the box will stretch to accommodate it
+                buttonWidth = 300, -- positive integer value representing the width of our buttons in pixels. defaults to 80. this value represents the minimum width of each button; if a button's label happens to be too long, the box will stretch to accommodate it. if set to 0, buttons will not have a preset width
             },
             description = 'Example use-case of the multiselect renderer.',
         },

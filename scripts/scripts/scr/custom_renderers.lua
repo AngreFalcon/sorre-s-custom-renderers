@@ -29,6 +29,7 @@ end
 
 
 
+
 I.Settings.registerRenderer('textset', function(input, set, args)
    if args == nil then args = {} end
    if input == nil then
@@ -116,6 +117,10 @@ I.Settings.registerRenderer('textset', function(input, set, args)
       input[text] = nil
    end
 
+   local buttonWidth = 80
+   if args.buttonWidth ~= nil and args.buttonWidth > -1 then
+      buttonWidth = args.buttonWidth
+   end
    for text in pairs(input) do
       local display = text
       local alpha = 0.5
@@ -169,13 +174,21 @@ I.Settings.registerRenderer('textset', function(input, set, args)
                            set(input)
                         end),
                      },
-                     content = ui.content({ {
-                        template = I.MWUI.templates.textNormal,
-                        props = {
-                           text = display,
-                           alpha = alpha,
+                     content = ui.content({
+                        {
+                           template = I.MWUI.templates.textNormal,
+                           props = {
+                              text = display,
+                              alpha = alpha,
+                           },
                         },
-                     }, }),
+                        {
+                           template = I.MWUI.templates.interval,
+                           props = {
+                              position = util.vector2(buttonWidth, 0),
+                           },
+                        },
+                     }),
                   },
                }),
             }, }),
@@ -221,7 +234,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
    }
 
    local buttonWidth = 80
-   if args.buttonWidth ~= nil and args.buttonWidth > 0 then
+   if args.buttonWidth ~= nil and args.buttonWidth > -1 then
       buttonWidth = args.buttonWidth
    end
    for _, key in ipairs(args.keys) do

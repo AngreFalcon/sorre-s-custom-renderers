@@ -26,6 +26,7 @@ I.Settings.registerGroup({
             lowercase = true,
             pretty = true,
             removeText = 'x',
+            buttonWidth = 80,
          },
          description = 'Example use-case of the textset renderer.',
       },

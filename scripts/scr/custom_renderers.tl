@@ -26,6 +26,7 @@ local interface TextSetArgs
     lowercase: boolean -- if true, all inputs are automatically cast to lowercase when adding to list
     pretty: boolean -- if true, inputs will be made proper case when displaying to the user. the effect is purely visual
     removeText: string -- the text to display for the removal button. defaults to 'x'
+    buttonWidth: integer -- optional argument to set the width of the text buttons. defaults to 80. if set to 0, buttons will not have a preset width
 end
 
 -- huge credit to SosnoviyBor on NexusMods for providing their Text Set Settings Renderer, from which this renderer was derived
@@ -116,6 +117,10 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
         input[text] = nil
     end
 
+    local buttonWidth: integer = 80
+    if args.buttonWidth ~= nil and args.buttonWidth > -1 then
+        buttonWidth = args.buttonWidth
+    end
     for text in pairs(input) do
         local display: string = text
 		local alpha: number = 0.5
@@ -169,13 +174,21 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                                     set(input)
                                 end),
                             },
-                            content = ui.content { {
-                                template = I.MWUI.templates.textNormal,
-                                props = { 
-                                    text = display,
-                                    alpha = alpha,
+                            content = ui.content {
+                                {
+                                    template = I.MWUI.templates.textNormal,
+                                    props = { 
+                                        text = display,
+                                        alpha = alpha,
+                                    },
                                 },
-                            } },
+                                {
+                                    template = I.MWUI.templates.interval,
+                                    props = {
+                                        position = util.vector2(buttonWidth, 0)
+                                    },
+                                },
+                            },
                         },
                     },
                 } },
@@ -221,7 +234,7 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
     }
 
     local buttonWidth: integer = 80
-    if args.buttonWidth ~= nil and args.buttonWidth > 0 then
+    if args.buttonWidth ~= nil and args.buttonWidth > -1 then
         buttonWidth = args.buttonWidth
     end
     for _, key in ipairs(args.keys) do
