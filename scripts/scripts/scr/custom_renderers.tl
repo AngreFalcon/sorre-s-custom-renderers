@@ -128,54 +128,57 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
 
         body.content:add {
             template = I.MWUI.templates.box,
-            content = ui.content { { 
-                type = ui.TYPE.Flex,
-                props = {
-                    horizontal = true,
-                    arrange = ui.ALIGNMENT.Center,
-                },
-                content = ui.content {
-                    {
-                        template = I.MWUI.templates.padding,
-                        events = {
-                            mouseClick = async:callback(function()
-                                remove(text)
-                                set(input)
-                            end),
+            content = ui.content { {
+                template = I.MWUI.templates.padding,
+                content = ui.content { { 
+                    type = ui.TYPE.Flex,
+                    props = {
+                        horizontal = true,
+                        arrange = ui.ALIGNMENT.Center,
+                    },
+                    content = ui.content {
+                        {
+                            template = I.MWUI.templates.padding,
+                            events = {
+                                mouseClick = async:callback(function()
+                                    remove(text)
+                                    set(input)
+                                end),
+                            },
+                            content = ui.content { {
+                                template = I.MWUI.templates.textNormal,
+                                props = {
+                                    text = removeText,
+                                },
+                            } },
                         },
-                        content = ui.content { {
-                            template = I.MWUI.templates.textNormal,
-                            props = {
-                                text = removeText,
-                            },
-                        } },
-                    },
-                    {
-                        template = I.MWUI.templates.padding,
-                        content = ui.content { {
-                            template = I.MWUI.templates.textNormal,
-                            props = {
-                                text = '|',
-                            },
-                        } },
-                    },
-                    {
-                        template = I.MWUI.templates.padding,
-                        events = {
-                            mouseClick = async:callback(function()
-			                	input[text] = input[text] == false
-                                set(input)
-                            end),
+                        {
+                            template = I.MWUI.templates.padding,
+                            content = ui.content { {
+                                template = I.MWUI.templates.textNormal,
+                                props = {
+                                    text = '|',
+                                },
+                            } },
                         },
-                        content = ui.content { {
-                            template = I.MWUI.templates.textNormal,
-                            props = { 
-                                text = display,
-                                alpha = alpha,
+                        {
+                            template = I.MWUI.templates.padding,
+                            events = {
+                                mouseClick = async:callback(function()
+			                    	input[text] = input[text] == false
+                                    set(input)
+                                end),
                             },
-                        } },
+                            content = ui.content { {
+                                template = I.MWUI.templates.textNormal,
+                                props = { 
+                                    text = display,
+                                    alpha = alpha,
+                                },
+                            } },
+                        },
                     },
-                },
+                } },
             } },
         }
     end
@@ -240,7 +243,7 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 					    	text = label,
 					    	alpha = alpha,
                             autoSize = false,
-                            size = util.vector2(100, 12)
+                            size = util.vector2(100, 12),
 					    },
                     } },
                 } },
