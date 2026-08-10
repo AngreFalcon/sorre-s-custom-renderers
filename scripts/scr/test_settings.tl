@@ -35,8 +35,9 @@ I.Settings.registerGroup {
             name = 'Multi Select Renderer',
             default = { ["this"] = false, ["example"] = true, ["is"] = false, ["for"] = false, ["multiselect"] = true, },  -- default on/off states for our chosen buttons
             argument = {
-                keys = { "example", "for", "multiselect", }, -- this list defines our collection of toggleable buttons. if any buttons are given a default value that don't appear in this list, they will be ignored
+                keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample", }, -- this list defines our collection of toggleable buttons. if any buttons are given a default value that don't appear in this list, they will be ignored
 				aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are", }, -- this table contains aliases for our buttons, to allow for prettier UI while still retaining descriptive keys for indexing
+                buttonWidth = 300, -- positive integer value representing the width of our buttons in pixels. defaults to 80. this value represents the minimum width of each button; if a button's label happens to be too long, the box will stretch to accommodate it
             },
             description = 'Example use-case of the multiselect renderer.',
         },
@@ -57,6 +58,7 @@ I.Settings.registerGroup {
                 integer = false, -- whether inputs should be integer only, or floating point values
                 min = { num1 = -10, num2 = -10, }, -- the minimum allowed input for the given field
                 max = { num1 = 10, num2 = 10, }, -- the maximum allowed input for the given field
+                aliases = { ["num1"] = "Num 1", ["num2"] = "Num 2", }, -- aliases for our keys, to allow displaying prettier text for the end user rather than the key used to index each value
             },
             description = 'Example use-case of the multinumber renderer.',
         },

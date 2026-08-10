@@ -199,6 +199,7 @@ end)
 
 
 
+
 I.Settings.registerRenderer('multiselect', function(input, set, args)
    if input == nil then input = {} end
    if args == nil then args = {} end
@@ -219,6 +220,10 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       content = ui.content({}),
    }
 
+   local buttonWidth = 80
+   if args.buttonWidth ~= nil and args.buttonWidth > 0 then
+      buttonWidth = args.buttonWidth
+   end
    for _, key in ipairs(args.keys) do
       local alpha = 0.5
       local label = key
@@ -232,19 +237,31 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       })
 
       body.content:add({
-         template = I.MWUI.templates.box,
+         type = ui.TYPE.Flex,
+         props = {
+            horizontal = true,
+         },
          content = ui.content({ {
-            template = I.MWUI.templates.padding,
+            template = I.MWUI.templates.box,
             content = ui.content({ {
                template = I.MWUI.templates.padding,
                content = ui.content({ {
-                  template = I.MWUI.templates.textNormal,
-                  props = {
-                     text = label,
-                     alpha = alpha,
-                     autoSize = false,
-                     size = util.vector2(100, 12),
-                  },
+                  template = I.MWUI.templates.padding,
+                  content = ui.content({
+                     {
+                        template = I.MWUI.templates.textNormal,
+                        props = {
+                           text = label,
+                           alpha = alpha,
+                        },
+                     },
+                     {
+                        template = I.MWUI.templates.interval,
+                        props = {
+                           position = util.vector2(buttonWidth, 0),
+                        },
+                     },
+                  }),
                }, }),
             }, }),
          }, }),

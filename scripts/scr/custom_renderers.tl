@@ -195,6 +195,7 @@ end)
 local interface MultiSelectArgs
     keys: { string } -- the list of values to render for the setting. regardless of our default values, the only buttons that will display on our settings page is what's passed in to this argument
     aliases: { string: string } -- this optional argument contains a table of aliases to display instead of the raw key for our buttons
+    buttonWidth: integer -- optional argument to set the width of the multiselect buttons. defaults to 80
 end
 
 -- input is a table of default values for the specified keys. if the key used is not present in our buttons argument, however, it will not appear in our settings menu
@@ -219,6 +220,10 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
         content = ui.content({}),
     }
 
+    local buttonWidth: integer = 80
+    if args.buttonWidth ~= nil and args.buttonWidth > 0 then
+        buttonWidth = args.buttonWidth
+    end
     for _, key in ipairs(args.keys) do
 		local alpha: number = 0.5
         local label: string = key
@@ -232,21 +237,33 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
         }
 
         body.content:add {
-            template = I.MWUI.templates.box,
+            type = ui.TYPE.Flex,
+            props = {
+                horizontal = true,
+            },
             content = ui.content { {
-                template = I.MWUI.templates.padding,
+                template = I.MWUI.templates.box,
                 content = ui.content { {
                     template = I.MWUI.templates.padding,
                     content = ui.content { {
-                        template = I.MWUI.templates.textNormal,
-                        props = { 
-					    	text = label,
-					    	alpha = alpha,
-                            autoSize = false,
-                            size = util.vector2(100, 12),
-					    },
+                        template = I.MWUI.templates.padding,
+                        content = ui.content {
+                            {
+                                template = I.MWUI.templates.textNormal,
+                                props = {
+				    	        	text = label,
+				    	        	alpha = alpha,
+				    	        },
+                            },
+                            {
+                                template = I.MWUI.templates.interval,
+                                props = {
+                                    position = util.vector2(buttonWidth, 0)
+                                },
+                            },
+                        },
                     } },
-                } },
+                }, },
             } },
             events = {
                 mouseClick = async:callback(function()

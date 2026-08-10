@@ -35,8 +35,9 @@ I.Settings.registerGroup({
          name = 'Multi Select Renderer',
          default = { ["this"] = false, ["example"] = true, ["is"] = false, ["for"] = false, ["multiselect"] = true },
          argument = {
-            keys = { "example", "for", "multiselect" },
+            keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample" },
             aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are" },
+            buttonWidth = 300,
          },
          description = 'Example use-case of the multiselect renderer.',
       },
@@ -57,6 +58,7 @@ I.Settings.registerGroup({
             integer = false,
             min = { num1 = -10, num2 = -10 },
             max = { num1 = 10, num2 = 10 },
+            aliases = { ["num1"] = "Num 1", ["num2"] = "Num 2" },
          },
          description = 'Example use-case of the multinumber renderer.',
       },
