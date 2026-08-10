@@ -1,6 +1,7 @@
 local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; local I = require('openmw.interfaces')
 local ui = require('openmw.ui')
 local async = require('openmw.async')
+local util = require('openmw.util')
 
 local function capitalizeText(text)
    local capitalizedText = ""
@@ -215,11 +216,11 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       content = ui.content({}),
    }
 
-   for _, text in ipairs(args.keys) do
+   for _, key in ipairs(args.keys) do
       local alpha = 0.5
-      local display = text
-      if args.aliases ~= nil and args.aliases[text] ~= nil then display = args.aliases[text] end
-      if input[text] == true then
+      local label = key
+      if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
+      if input[key] == true then
          alpha = 1.0
       end
 
@@ -229,19 +230,26 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
 
       body.content:add({
          template = I.MWUI.templates.box,
+         props = {
+            autoSize = false,
+            relatizeSize = util.vector2(100, 100),
+         },
          content = ui.content({ {
             template = I.MWUI.templates.padding,
             content = ui.content({ {
-               template = I.MWUI.templates.textNormal,
-               props = {
-                  text = capitalizeText(display),
-                  alpha = alpha,
-               },
+               template = I.MWUI.templates.padding,
+               content = ui.content({ {
+                  template = I.MWUI.templates.textNormal,
+                  props = {
+                     text = label,
+                     alpha = alpha,
+                  },
+               }, }),
             }, }),
          }, }),
          events = {
             mouseClick = async:callback(function()
-               input[text] = input[text] == false
+               input[key] = input[key] == false
                set(input)
             end),
          },
@@ -255,6 +263,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       }),
    }
 end)
+
 
 
 
@@ -283,7 +292,9 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
       content = ui.content({}),
    }
 
-   for _, k in ipairs(args.keys) do
+   for _, key in ipairs(args.keys) do
+      local label = key
+      if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
       body.content:add({
          template = I.MWUI.templates.padding,
       })
@@ -299,7 +310,7 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
                content = ui.content({ {
                   template = I.MWUI.templates.textNormal,
                   props = {
-                     text = capitalizeText(k),
+                     text = label,
                      textAlignV = ui.ALIGNMENT.Center,
                   },
                }, }),
@@ -314,28 +325,29 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
                   content = ui.content({ {
                      template = I.MWUI.templates.textEditLine,
                      props = {
-                        text = tostring(input[k]),
+                        text = tostring(input[key]),
+                        size = util.vector2(80, 0),
                      },
                      events = {
                         textChanged = async:callback(function(text)
-                           lastInput[k] = tonumber(text)
+                           lastInput[key] = tonumber(text)
                         end),
                         focusLoss = async:callback(function()
-                           local num = lastInput[k]
+                           local num = lastInput[key]
                            if num == nil then
-                              input[k] = 0
+                              input[key] = 0
                               set(input)
                               return
                            end
                            if args.integer == true then
                               num = math.floor(num + 0.5)
                            end
-                           if args.min[k] ~= nil and num < args.min[k] then
-                              num = args.min[k]
-                           elseif args.max[k] ~= nil and num > args.max[k] then
-                              num = args.max[k]
+                           if args.min[key] ~= nil and num < args.min[key] then
+                              num = args.min[key]
+                           elseif args.max[key] ~= nil and num > args.max[key] then
+                              num = args.max[key]
                            end
-                           input[k] = num
+                           input[key] = num
                            set(input)
                         end),
                      },

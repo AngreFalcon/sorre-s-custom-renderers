@@ -1,6 +1,7 @@
 local I = require('openmw.interfaces')
 local ui = require('openmw.ui')
 local async = require('openmw.async')
+local util = require('openmw.util')
 
 local function capitalizeText(text: string): string
     local capitalizedText: string = ""
@@ -215,11 +216,11 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
         content = ui.content({}),
     }
 
-    for _, text in ipairs(args.keys) do
+    for _, key in ipairs(args.keys) do
 		local alpha: number = 0.5
-        local display: string = text
-        if args.aliases ~= nil and args.aliases[text] ~= nil then display = args.aliases[text] end
-		if input[text] == true then
+        local label: string = key
+        if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
+		if input[key] == true then
 			alpha = 1.0
 		end
 		
@@ -229,19 +230,26 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 
         body.content:add {
             template = I.MWUI.templates.box,
+            props = {
+                            autoSize = false,
+                            relatizeSize = util.vector2(100, 100)
+            },
             content = ui.content { {
                 template = I.MWUI.templates.padding,
                 content = ui.content { {
-                    template = I.MWUI.templates.textNormal,
-                    props = { 
-						text = capitalizeText(display),
-						alpha = alpha,
-					},
+                    template = I.MWUI.templates.padding,
+                    content = ui.content { {
+                        template = I.MWUI.templates.textNormal,
+                        props = { 
+					    	text = label,
+					    	alpha = alpha,
+					    },
+                    } },
                 } },
             } },
             events = {
                 mouseClick = async:callback(function()
-					input[text] = input[text] == false
+					input[key] = input[key] == false
                     set(input)
                 end),
             },
@@ -261,6 +269,7 @@ local interface MultiNumArgs
     integer: boolean -- if true, each of the inputs for this multinum will be rounded to the nearest integer value
     max: { string: number } -- each number in this table is the maximum value that can be set for the setting corresponding to the key
     min: { string: number } -- each number in this table is the minimum value that can be set for the setting corresponding to the key
+    aliases: { string: string } -- this optional argument contains a table of aliases to display instead of the raw key for our buttons
 end
 
 I.Settings.registerRenderer('multinumber', function(input: { string: number } , set: function, args: MultiNumArgs): any
@@ -283,7 +292,9 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
         content = ui.content({}),
     }
 
-    for _, k in ipairs(args.keys) do
+    for _, key in ipairs(args.keys) do
+        local label: string = key
+        if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
         body.content:add {
             template = I.MWUI.templates.padding,
         }
@@ -299,7 +310,7 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                     content = ui.content { {
                         template = I.MWUI.templates.textNormal,
                         props = {
-                            text = capitalizeText(k),
+                            text = label,
                             textAlignV = ui.ALIGNMENT.Center,
                         },
                     } },
@@ -314,28 +325,29 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                         content = ui.content { {
                             template = I.MWUI.templates.textEditLine,
                             props = {
-                                text = tostring(input[k]),
+                                text = tostring(input[key]),
+                                size = util.vector2(80, 0) -- credit to SosnoviyBor on Nexus mods for making the recommendation to adjust the width of this text edit field to more closely mirror the number renderer
                             },
                             events = {
                                 textChanged = async:callback(function(text)
-                                    lastInput[k] = tonumber(text)
+                                    lastInput[key] = tonumber(text)
                                 end),
                                 focusLoss = async:callback(function()
-                                    local num = lastInput[k]
+                                    local num = lastInput[key]
                                     if num == nil then
-                                        input[k] = 0
+                                        input[key] = 0
                                         set(input)
                                         return
                                     end
                                     if args.integer == true then
                                         num = math.floor(num + 0.5)
                                     end
-                                    if args.min[k] ~= nil and num < args.min[k] then
-                                        num = args.min[k]
-                                    elseif args.max[k] ~= nil and num > args.max[k] then
-                                        num = args.max[k]
+                                    if args.min[key] ~= nil and num < args.min[key] then
+                                        num = args.min[key]
+                                    elseif args.max[key] ~= nil and num > args.max[key] then
+                                        num = args.max[key]
                                     end
-                                    input[k] = num
+                                    input[key] = num
                                     set(input)
                                 end),
                             },

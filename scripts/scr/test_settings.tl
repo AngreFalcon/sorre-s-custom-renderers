@@ -3,6 +3,7 @@ local storage = require('openmw.storage')
 
 I.Settings.registerPage {
     key = 'SettingsSorreCustomRenderersTest',
+    l10n = 'SettingsSorreCustomRenderersTest',
     name = 'Sorre\'s Custom Renderers - Examples',
     description = 'Example settings page for Sorre\'s custom renderers.',
 }
@@ -10,6 +11,7 @@ I.Settings.registerPage {
 I.Settings.registerGroup {
     page = 'SettingsSorreCustomRenderersTest',
     key = 'SettingsSorreCustomRenderersExamples',
+    l10n = 'SettingsSorreCustomRenderersExamples',
     name = 'Example Settings',
     description = 'Examples for Sorre\'s custom renderers.',
     permanentStorage = false,
@@ -38,6 +40,13 @@ I.Settings.registerGroup {
             },
             description = 'Example use-case of the multiselect renderer.',
         },
+        {
+            renderer = "checkbox",
+            key = "checkbox",
+            name = "Example Checkbox",
+            default = true,
+            description = "Example checkbox renderer for comparison against multiselect renderer."
+        },
 		{
             key = 'multinumber',
             renderer = 'multinumber',
@@ -50,6 +59,13 @@ I.Settings.registerGroup {
                 max = { num1 = 10, num2 = 10, }, -- the maximum allowed input for the given field
             },
             description = 'Example use-case of the multinumber renderer.',
+        },
+        {
+            renderer = "number",
+            key = "number",
+            name = "Example Number",
+            default = 0.01,
+            description = "Example number renderer for comparison against multinumber renderer."
         },
     } as {I.Settings.SettingOptions},
 }
