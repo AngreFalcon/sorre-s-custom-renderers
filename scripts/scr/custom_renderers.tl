@@ -230,10 +230,6 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 
         body.content:add {
             template = I.MWUI.templates.box,
-            props = {
-                            autoSize = false,
-                            relatizeSize = util.vector2(100, 100)
-            },
             content = ui.content { {
                 template = I.MWUI.templates.padding,
                 content = ui.content { {
@@ -243,6 +239,8 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
                         props = { 
 					    	text = label,
 					    	alpha = alpha,
+                            autoSize = false,
+                            size = util.vector2(100, 12)
 					    },
                     } },
                 } },

@@ -239,6 +239,8 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
                         props = { 
 					    	text = label,
 					    	alpha = alpha,
+                            autoSize = false,
+                            size = util.vector2(100, 12)
 					    },
                     } },
                 } },
