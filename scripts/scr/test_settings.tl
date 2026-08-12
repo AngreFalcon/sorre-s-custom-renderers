@@ -71,9 +71,9 @@ I.Settings.registerGroup {
             default = { num1 = 0.01, num2 = 1.00, }, -- default values for chosen inputs
             argument = { 
                 keys = { "num1", "num2" }, -- the name of each of our number inputs for this setting
-                integer = false, -- whether inputs should be integer only, or floating point values
-                --min = { num1 = -10, num2 = -10, }, -- the minimum allowed input for the given field
-                --max = { num1 = 10, num2 = 10, }, -- the maximum allowed input for the given field
+                integer = { num1 = false, num2 = true }, -- whether inputs should be integer only, or floating point values
+                min = { num1 = -10, num2 = -10, }, -- the minimum allowed input for the given field
+                max = { num1 = 10, num2 = 10, }, -- the maximum allowed input for the given field
                 aliases = { ["num1"] = "Num 1", ["num2"] = "Num 2", }, -- aliases for our keys, to allow displaying prettier text for the end user rather than the key used to index each value
             },
             description = 'Example use-case of the multinumber renderer.',

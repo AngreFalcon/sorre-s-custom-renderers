@@ -389,7 +389,7 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
                            if num == nil then
                               return
                            end
-                           if args.integer == true then
+                           if args.integer ~= nil and args.integer[key] == true then
                               num = math.floor(num + 0.5)
                            end
                            if args.min ~= nil and args.min[key] ~= nil and num < args.min[key] then

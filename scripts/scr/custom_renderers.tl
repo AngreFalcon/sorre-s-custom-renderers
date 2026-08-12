@@ -317,7 +317,7 @@ end)
 
 local interface MultiNumArgs
     keys: { string } -- each key in this list corresponds to an input for this multinum setting
-    integer: boolean -- if true, each of the inputs for this multinum will be rounded to the nearest integer value
+    integer: { string: boolean } -- decide on a key-to-key basis whether user inputs should be rounded to an integer or left a floating point value
     max: { string: number } -- each number in this table is the maximum value that can be set for the setting corresponding to the key
     min: { string: number } -- each number in this table is the minimum value that can be set for the setting corresponding to the key
     aliases: { string: string } -- this optional argument contains a table of aliases to display instead of the raw key for our buttons
@@ -389,7 +389,7 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                                     if num == nil then
                                         return
                                     end
-                                    if args.integer == true then
+                                    if args.integer ~= nil and args.integer[key] == true then
                                         num = math.floor(num + 0.5)
                                     end
                                     if args.min ~= nil and args.min[key] ~= nil and num < args.min[key] then
