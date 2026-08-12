@@ -214,6 +214,7 @@ local interface ButtonState
     enabled: ButtonLabel
     disabled: ButtonLabel
     hover: ButtonLabel
+    interacted: ButtonLabel
 end
 
 local interface MultiSelectArgs
@@ -249,17 +250,11 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
     }
     
     for _, key in ipairs(args.keys) do
-        local buttonLabel: ButtonLabel = state.disabled or {}
+        local buttonLabel: ButtonLabel = {}
+        local buttonDefault: ButtonLabel = {}
         local label: string = key
 
         if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
-        if buttonLabel.alpha == nil then
-            buttonLabel.alpha = 0.5
-        end
-        if input[key] == true then
-            buttonLabel = state.enabled or {}
-            if buttonLabel.alpha == nil then buttonLabel.alpha = 1.0 end
-		end
 
         local buttonText = ui.create({
             template = I.MWUI.templates.textNormal,
@@ -268,13 +263,27 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 		    },
         },{})
 
-        buttonText.layout.props.alpha = buttonLabel.alpha
-        buttonText.layout.props.textColor = buttonLabel.color or buttonText.layout.props.textColor
+        buttonDefault.alpha = buttonText.layout.props.alpha as number
+        buttonDefault.color = buttonText.layout.props.textColor as util.Color
+
+        if state.disabled == nil then state.disabled = buttonDefault end
+        if state.enabled == nil then state.enabled = buttonDefault end
+        if state.hover == nil then state.hover = buttonDefault end
+        if state.interacted == nil then state.interacted = state.hover end
+
+
+        if input[key] == true then
+            buttonLabel = state.enabled
+        else
+            buttonLabel = state.disabled
+		end
+
+        buttonText.layout.props.alpha = buttonLabel.alpha or buttonDefault.alpha
+        buttonText.layout.props.textColor = buttonLabel.color or buttonDefault.color
 
         body.content:add({
             template = I.MWUI.templates.padding,
         })
-
         body.content:add({
             type = ui.TYPE.Flex,
             props = {
@@ -302,6 +311,26 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
                 mouseClick = async:callback(function()
 					input[key] = input[key] == false
                     set(input)
+                end),
+                focusGain = async:callback(function()
+                    buttonText.layout.props.alpha = state.hover.alpha or buttonDefault.alpha
+                    buttonText.layout.props.textColor = state.hover.color or buttonDefault.color
+                    buttonText:update()
+                end),
+                focusLoss = async:callback(function()
+                    buttonText.layout.props.alpha = buttonLabel.alpha or buttonDefault.alpha
+                    buttonText.layout.props.textColor = buttonLabel.color or buttonDefault.color
+                    buttonText:update()
+                end),
+                mousePress = async:callback(function()
+                    buttonText.layout.props.alpha = state.interacted.alpha or buttonDefault.alpha
+                    buttonText.layout.props.textColor = state.interacted.color or buttonDefault.color
+                    buttonText:update()
+                end),
+                mouseRelease = async:callback(function()
+                    buttonText.layout.props.alpha = state.hover.alpha or buttonDefault.alpha
+                    buttonText.layout.props.textColor = state.hover.color or buttonDefault.color
+                    buttonText:update()
                 end),
             },
         })

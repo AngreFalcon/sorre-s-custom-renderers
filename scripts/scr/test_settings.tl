@@ -1,6 +1,6 @@
 local I = require('openmw.interfaces')
 local storage = require('openmw.storage')
---local util = require('openmw.util')
+local util = require('openmw.util')
 
 I.Settings.registerPage {
     key = 'SettingsSorreCustomRenderersTest',
@@ -51,7 +51,11 @@ I.Settings.registerGroup {
                     },
                     hover = {
                         alpha = 1.0,
-                        --color = util.color.rgb(1, 0, 0),
+                        color = util.color.rgb(1, 1, 1),
+                    },
+                    interacted = {
+                        alpha = 1.0,
+                        color = util.color.rgb(1, 0, 0),
                     },
                 },
             },
