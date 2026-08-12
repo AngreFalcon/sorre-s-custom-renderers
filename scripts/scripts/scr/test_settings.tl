@@ -1,5 +1,6 @@
 local I = require('openmw.interfaces')
 local storage = require('openmw.storage')
+--local util = require('openmw.util')
 
 I.Settings.registerPage {
     key = 'SettingsSorreCustomRenderersTest',
@@ -39,6 +40,20 @@ I.Settings.registerGroup {
                 keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample", }, -- this list defines our collection of toggleable buttons. if any buttons are given a default value that don't appear in this list, they will be ignored
 				aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are", }, -- this table contains aliases for our buttons, to allow for prettier UI while still retaining descriptive keys for indexing
                 buttonWidth = 300, -- positive integer value representing the width of our buttons in pixels. defaults to 80. this value represents the minimum width of each button; if a button's label happens to be too long, the box will stretch to accommodate it. if set to 0, buttons will not have a preset width
+                buttonStates = {
+                    enabled = {
+                        alpha = 1.0, -- a number from 0 to 1 representing the opacity of the text, with 1 being opaque and 0 being transparent
+                        --color = util.color.rgb(1, 0, 0), -- rgb value for the label text
+                    },
+                    disabled = {
+                        alpha = 0.5,
+                        --color = util.color.rgb(0, 0, 1),
+                    },
+                    hover = {
+                        alpha = 1.0,
+                        --color = util.color.rgb(1, 0, 0),
+                    },
+                },
             },
             description = 'Example use-case of the multiselect renderer.',
         },

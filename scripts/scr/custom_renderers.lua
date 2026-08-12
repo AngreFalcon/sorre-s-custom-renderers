@@ -213,16 +213,31 @@ end)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
 I.Settings.registerRenderer('multiselect', function(input, set, args)
+   local buttonWidth = 80
    if input == nil then input = {} end
    if args == nil then args = {} end
    if args.keys ~= nil then
       for _, text in ipairs(args.keys) do
-         if input[text] == nil then
-            input[text] = false
-         end
+         input[text] = input[text] or false
       end
    end
+   if args.buttonWidth ~= nil and args.buttonWidth > -1 then
+      buttonWidth = args.buttonWidth
+   end
+   local state = args.buttonStates or {}
 
    local body = {
       type = ui.TYPE.Flex,
@@ -233,17 +248,28 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       content = ui.content({}),
    }
 
-   local buttonWidth = 80
-   if args.buttonWidth ~= nil and args.buttonWidth > -1 then
-      buttonWidth = args.buttonWidth
-   end
    for _, key in ipairs(args.keys) do
-      local alpha = 0.5
+      local buttonLabel = state.disabled or {}
       local label = key
+
       if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
-      if input[key] == true then
-         alpha = 1.0
+      if buttonLabel.alpha == nil then
+         buttonLabel.alpha = 0.5
       end
+      if input[key] == true then
+         buttonLabel = state.enabled or {}
+         if buttonLabel.alpha == nil then buttonLabel.alpha = 1.0 end
+      end
+
+      local buttonText = ui.create({
+         template = I.MWUI.templates.textNormal,
+         props = {
+            text = label,
+         },
+      }, {})
+
+      buttonText.layout.props.alpha = buttonLabel.alpha
+      buttonText.layout.props.textColor = buttonLabel.color or buttonText.layout.props.textColor
 
       body.content:add({
          template = I.MWUI.templates.padding,
@@ -261,13 +287,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
                content = ui.content({ {
                   template = I.MWUI.templates.padding,
                   content = ui.content({
-                     {
-                        template = I.MWUI.templates.textNormal,
-                        props = {
-                           text = label,
-                           alpha = alpha,
-                        },
-                     },
+                     buttonText,
                      {
                         template = I.MWUI.templates.interval,
                         props = {
@@ -326,6 +346,7 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
    for _, key in ipairs(args.keys) do
       local label = key
       if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
+
       body.content:add({
          template = I.MWUI.templates.padding,
       })
@@ -366,16 +387,14 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
                         focusLoss = async:callback(function()
                            local num = lastInput[key]
                            if num == nil then
-                              input[key] = 0
-                              set(input)
                               return
                            end
                            if args.integer == true then
                               num = math.floor(num + 0.5)
                            end
-                           if args.min[key] ~= nil and num < args.min[key] then
+                           if args.min ~= nil and args.min[key] ~= nil and num < args.min[key] then
                               num = args.min[key]
-                           elseif args.max[key] ~= nil and num > args.max[key] then
+                           elseif args.max ~= nil and args.max[key] ~= nil and num > args.max[key] then
                               num = args.max[key]
                            end
                            input[key] = num

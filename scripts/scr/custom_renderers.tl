@@ -55,11 +55,11 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
 
     local inputText: string = ''
 
-    header.content:add {
+    header.content:add({
         template = I.MWUI.templates.box,
-        content = ui.content { {
+        content = ui.content({ {
             template = I.MWUI.templates.padding,
-            content = ui.content { {
+            content = ui.content({ {
                 template = I.MWUI.templates.textNormal,
                 props = {
                     text = "Add",
@@ -82,31 +82,31 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                         set(input)
                     end),
                 },
-            } },
-        } },
-    }
+            } }),
+        } }),
+    })
 
-    header.content:add {
+    header.content:add({
         template = I.MWUI.templates.padding,
         external = {
             grow = 1,
         },
-    }
+    })
 
-    header.content:add {
+    header.content:add({
         template = I.MWUI.templates.box,
-        content = ui.content { {
+        content = ui.content({ {
             template = I.MWUI.templates.padding,
-            content = ui.content { {
+            content = ui.content({ {
                 template = I.MWUI.templates.textEditLine,
                 events = {
                     textChanged = async:callback(function(text: string)
                         inputText = text
                     end),
                 },
-            } },
-        } },
-    }
+            } }),
+        } }),
+    })
 
     local body = {
         type = ui.TYPE.Flex,
@@ -127,21 +127,21 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
         if args.pretty == true then display = capitalizeText(text) end
 		if input[text] == true then alpha = 1.0 end
         
-        body.content:add {
+        body.content:add({
             template = I.MWUI.templates.padding,
-        }
+        })
 
-        body.content:add {
+        body.content:add({
             template = I.MWUI.templates.box,
-            content = ui.content { {
+            content = ui.content({ {
                 template = I.MWUI.templates.padding,
-                content = ui.content { { 
+                content = ui.content({ { 
                     type = ui.TYPE.Flex,
                     props = {
                         horizontal = true,
                         arrange = ui.ALIGNMENT.Center,
                     },
-                    content = ui.content {
+                    content = ui.content({
                         {
                             template = I.MWUI.templates.padding,
                             events = {
@@ -150,21 +150,21 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                                     set(input)
                                 end),
                             },
-                            content = ui.content { {
+                            content = ui.content({ {
                                 template = I.MWUI.templates.textNormal,
                                 props = {
                                     text = removeText,
                                 },
-                            } },
+                            } }),
                         },
                         {
                             template = I.MWUI.templates.padding,
-                            content = ui.content { {
+                            content = ui.content({ {
                                 template = I.MWUI.templates.textNormal,
                                 props = {
                                     text = '|',
                                 },
-                            } },
+                            } }),
                         },
                         {
                             template = I.MWUI.templates.padding,
@@ -174,7 +174,7 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                                     set(input)
                                 end),
                             },
-                            content = ui.content {
+                            content = ui.content({
                                 {
                                     template = I.MWUI.templates.textNormal,
                                     props = { 
@@ -188,12 +188,12 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
                                         position = util.vector2(buttonWidth, 0)
                                     },
                                 },
-                            },
+                            }),
                         },
-                    },
-                } },
-            } },
-        }
+                    }),
+                } }),
+            } }),
+        })
     end
 
     return {
@@ -205,24 +205,39 @@ I.Settings.registerRenderer('textset', function(input: { string: boolean }, set:
     }
 end)
 
+local interface ButtonLabel
+    alpha: number -- opacity of the button label
+    color: util.Color -- color of the button label
+end
+
+local interface ButtonState
+    enabled: ButtonLabel
+    disabled: ButtonLabel
+    hover: ButtonLabel
+end
+
 local interface MultiSelectArgs
     keys: { string } -- the list of values to render for the setting. regardless of our default values, the only buttons that will display on our settings page is what's passed in to this argument
     aliases: { string: string } -- this optional argument contains a table of aliases to display instead of the raw key for our buttons
     buttonWidth: integer -- optional argument to set the width of the multiselect buttons. defaults to 80
+    buttonStates: ButtonState -- optional argument for setting opacity and color of button label in various states of interaction
 end
 
 -- input is a table of default values for the specified keys. if the key used is not present in our buttons argument, however, it will not appear in our settings menu
 -- buttons will be our supplied list of buttons. this list represents exactly what buttons are rendered in our settings menu; if a key is not present in our buttons list, it will not be rendered even if input contains it
 I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, set: function, args: MultiSelectArgs): any
+    local buttonWidth: integer = 80
     if input == nil then input = {} end
     if args == nil then args = {} end
 	if args.keys ~= nil then
 		for _, text in ipairs(args.keys) do
-			if input[text] == nil then
-				input[text] = false
-			end
+            input[text] = input[text] or false
 		end
 	end
+    if args.buttonWidth ~= nil and args.buttonWidth > -1 then
+        buttonWidth = args.buttonWidth
+    end
+    local state: ButtonState = args.buttonStates or {}
 
     local body = {
         type = ui.TYPE.Flex,
@@ -232,59 +247,64 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 		},
         content = ui.content({}),
     }
-
-    local buttonWidth: integer = 80
-    if args.buttonWidth ~= nil and args.buttonWidth > -1 then
-        buttonWidth = args.buttonWidth
-    end
+    
     for _, key in ipairs(args.keys) do
-		local alpha: number = 0.5
+        local buttonLabel: ButtonLabel = state.disabled or {}
         local label: string = key
-        if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
-		if input[key] == true then
-			alpha = 1.0
-		end
-		
-        body.content:add {
-            template = I.MWUI.templates.padding,
-        }
 
-        body.content:add {
+        if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
+        if buttonLabel.alpha == nil then
+            buttonLabel.alpha = 0.5
+        end
+        if input[key] == true then
+            buttonLabel = state.enabled or {}
+            if buttonLabel.alpha == nil then buttonLabel.alpha = 1.0 end
+		end
+
+        local buttonText = ui.create({
+            template = I.MWUI.templates.textNormal,
+            props = {
+		    	text = label,
+		    },
+        },{})
+
+        buttonText.layout.props.alpha = buttonLabel.alpha
+        buttonText.layout.props.textColor = buttonLabel.color or buttonText.layout.props.textColor
+
+        body.content:add({
+            template = I.MWUI.templates.padding,
+        })
+
+        body.content:add({
             type = ui.TYPE.Flex,
             props = {
                 horizontal = true,
             },
-            content = ui.content { {
+            content = ui.content({ {
                 template = I.MWUI.templates.box,
-                content = ui.content { {
+                content = ui.content({ {
                     template = I.MWUI.templates.padding,
-                    content = ui.content { {
+                    content = ui.content({ {
                         template = I.MWUI.templates.padding,
-                        content = ui.content {
-                            {
-                                template = I.MWUI.templates.textNormal,
-                                props = {
-				    	        	text = label,
-				    	        	alpha = alpha,
-				    	        },
-                            },
+                        content = ui.content({
+                            buttonText,
                             {
                                 template = I.MWUI.templates.interval,
                                 props = {
                                     position = util.vector2(buttonWidth, 0)
                                 },
                             },
-                        },
-                    } },
-                }, },
-            } },
+                        }),
+                    } }),
+                }, }),
+            } }),
             events = {
                 mouseClick = async:callback(function()
 					input[key] = input[key] == false
                     set(input)
                 end),
             },
-        }
+        })
     end
 
     return {
@@ -304,7 +324,7 @@ local interface MultiNumArgs
 end
 
 I.Settings.registerRenderer('multinumber', function(input: { string: number } , set: function, args: MultiNumArgs): any
-    local lastInput: { string: number} = {}
+    local lastInput: { string: number } = {}
     if args == nil then args = {} end
 	if args.keys ~= nil then
         for _, k in ipairs(args.keys) do
@@ -326,10 +346,11 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
     for _, key in ipairs(args.keys) do
         local label: string = key
         if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
-        body.content:add {
+        
+        body.content:add({
             template = I.MWUI.templates.padding,
-        }
-        body.content:add {
+        })
+        body.content:add({
             type = ui.TYPE.Flex,
             props = {
                 horizontal = true,
@@ -366,16 +387,14 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                                 focusLoss = async:callback(function()
                                     local num = lastInput[key]
                                     if num == nil then
-                                        input[key] = 0
-                                        set(input)
                                         return
                                     end
                                     if args.integer == true then
                                         num = math.floor(num + 0.5)
                                     end
-                                    if args.min[key] ~= nil and num < args.min[key] then
+                                    if args.min ~= nil and args.min[key] ~= nil and num < args.min[key] then
                                         num = args.min[key]
-                                    elseif args.max[key] ~= nil and num > args.max[key] then
+                                    elseif args.max ~= nil and args.max[key] ~= nil and num > args.max[key] then
                                         num = args.max[key]
                                     end
                                     input[key] = num
@@ -386,7 +405,7 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                     } },
                 },
             },
-        }
+        })
     end
 
     return {

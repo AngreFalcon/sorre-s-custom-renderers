@@ -1,6 +1,7 @@
 local I = require('openmw.interfaces')
 local storage = require('openmw.storage')
 
+
 I.Settings.registerPage({
    key = 'SettingsSorreCustomRenderersTest',
    l10n = 'SettingsSorreCustomRenderersTest',
@@ -39,6 +40,20 @@ I.Settings.registerGroup({
             keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample" },
             aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are" },
             buttonWidth = 300,
+            buttonStates = {
+               enabled = {
+                  alpha = 1.0,
+
+               },
+               disabled = {
+                  alpha = 0.5,
+
+               },
+               hover = {
+                  alpha = 1.0,
+
+               },
+            },
          },
          description = 'Example use-case of the multiselect renderer.',
       },
@@ -57,8 +72,8 @@ I.Settings.registerGroup({
          argument = {
             keys = { "num1", "num2" },
             integer = false,
-            min = { num1 = -10, num2 = -10 },
-            max = { num1 = 10, num2 = 10 },
+
+
             aliases = { ["num1"] = "Num 1", ["num2"] = "Num 2" },
          },
          description = 'Example use-case of the multinumber renderer.',
