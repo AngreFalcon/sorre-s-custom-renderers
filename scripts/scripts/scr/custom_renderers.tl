@@ -2,6 +2,7 @@ local I = require('openmw.interfaces')
 local ui = require('openmw.ui')
 local async = require('openmw.async')
 local util = require('openmw.util')
+local ambient = require('openmw.ambient')
 
 local function capitalizeText(text: string): string
     local capitalizedText: string = ""
@@ -224,10 +225,17 @@ local interface MultiSelectArgs
     buttonStates: ButtonState -- optional argument for setting opacity and color of button label in various states of interaction
 end
 
+local function updateButton(state: ButtonLabel, element: ui.Element)
+    element.layout.props.textColor = state.color
+    element.layout.props.alpha = state.alpha
+    element:update()
+end
+
 -- input is a table of default values for the specified keys. if the key used is not present in our buttons argument, however, it will not appear in our settings menu
 -- buttons will be our supplied list of buttons. this list represents exactly what buttons are rendered in our settings menu; if a key is not present in our buttons list, it will not be rendered even if input contains it
 I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, set: function, args: MultiSelectArgs): any
     local buttonWidth: integer = 80
+    local buttonHeld: boolean = false
     if input == nil then input = {} end
     if args == nil then args = {} end
 	if args.keys ~= nil then
@@ -250,7 +258,6 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
     }
     
     for _, key in ipairs(args.keys) do
-        local buttonLabel: ButtonLabel = {}
         local buttonDefault: ButtonLabel = {}
         local label: string = key
 
@@ -263,23 +270,32 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 		    },
         },{})
 
-        buttonDefault.alpha = buttonText.layout.props.alpha as number
-        buttonDefault.color = buttonText.layout.props.textColor as util.Color
+        buttonDefault.color = (buttonText.layout.props.textColor as util.Color)
+        buttonDefault.alpha = (buttonText.layout.props.alpha as number) or 1.0
 
-        if state.disabled == nil then state.disabled = buttonDefault end
-        if state.enabled == nil then state.enabled = buttonDefault end
-        if state.hover == nil then state.hover = buttonDefault end
-        if state.interacted == nil then state.interacted = state.hover end
+        if state.disabled == nil then state.disabled = {} end
+        state.disabled.color = state.disabled.color or buttonDefault.color
+        state.disabled.alpha = state.disabled.alpha or 0.5
 
+        if state.enabled == nil then state.enabled = {} end
+        state.enabled.color = state.enabled.color or buttonDefault.color
+        state.enabled.alpha = state.enabled.alpha or buttonDefault.alpha
+
+        if state.hover == nil then state.hover = {} end
+        state.hover.color = state.hover.color or buttonDefault.color
+        state.hover.alpha = state.hover.alpha or ((state.enabled.alpha + state.disabled.alpha) / 2)
+
+        if state.interacted == nil then state.interacted = {} end
+        state.interacted.color = state.interacted.color or state.hover.color
+        state.interacted.alpha = state.interacted.alpha or state.hover.alpha
 
         if input[key] == true then
-            buttonLabel = state.enabled
+            buttonText.layout.props.alpha = state.enabled.alpha
+            buttonText.layout.props.textColor = state.enabled.color
         else
-            buttonLabel = state.disabled
+            buttonText.layout.props.alpha = state.disabled.alpha
+            buttonText.layout.props.textColor = state.disabled.color
 		end
-
-        buttonText.layout.props.alpha = buttonLabel.alpha or buttonDefault.alpha
-        buttonText.layout.props.textColor = buttonLabel.color or buttonDefault.color
 
         body.content:add({
             template = I.MWUI.templates.padding,
@@ -288,6 +304,7 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
             type = ui.TYPE.Flex,
             props = {
                 horizontal = true,
+                propagateEvents = false,
             },
             content = ui.content({ {
                 template = I.MWUI.templates.box,
@@ -312,25 +329,29 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
 					input[key] = input[key] == false
                     set(input)
                 end),
-                focusGain = async:callback(function()
-                    buttonText.layout.props.alpha = state.hover.alpha or buttonDefault.alpha
-                    buttonText.layout.props.textColor = state.hover.color or buttonDefault.color
-                    buttonText:update()
-                end),
-                focusLoss = async:callback(function()
-                    buttonText.layout.props.alpha = buttonLabel.alpha or buttonDefault.alpha
-                    buttonText.layout.props.textColor = buttonLabel.color or buttonDefault.color
-                    buttonText:update()
-                end),
                 mousePress = async:callback(function()
-                    buttonText.layout.props.alpha = state.interacted.alpha or buttonDefault.alpha
-                    buttonText.layout.props.textColor = state.interacted.color or buttonDefault.color
-                    buttonText:update()
+                    ambient.playSound('menu click', {})
+                    updateButton(state.interacted, buttonText)
+                    buttonHeld = true
                 end),
                 mouseRelease = async:callback(function()
-                    buttonText.layout.props.alpha = state.hover.alpha or buttonDefault.alpha
-                    buttonText.layout.props.textColor = state.hover.color or buttonDefault.color
-                    buttonText:update()
+                    updateButton(state.hover, buttonText)
+                    print("release")
+                    buttonHeld = false
+                end),
+                focusGain = async:callback(function()
+                    if buttonHeld == false then
+                        updateButton(state.hover, buttonText)
+                    end
+                end),
+                focusLoss = async:callback(function()
+                    if buttonHeld == false then
+                        if input[key] == true then
+                            updateButton(state.enabled, buttonText)
+                        else
+                            updateButton(state.disabled, buttonText)
+                        end
+                    end
                 end),
             },
         })
@@ -352,7 +373,7 @@ local interface MultiNumArgs
     aliases: { string: string } -- this optional argument contains a table of aliases to display instead of the raw key for our buttons
 end
 
-I.Settings.registerRenderer('multinumber', function(input: { string: number } , set: function, args: MultiNumArgs): any
+I.Settings.registerRenderer('multinumber', function(input: { string: number }, set: function, args: MultiNumArgs): any
     local lastInput: { string: number } = {}
     if args == nil then args = {} end
 	if args.keys ~= nil then
@@ -375,6 +396,19 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
     for _, key in ipairs(args.keys) do
         local label: string = key
         if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
+        if args.min ~= nil and args.min[key] ~= nil and input[key] < args.min[key] then
+            input[key] = args.min[key]
+            set(input)
+        elseif args.max ~= nil and args.max[key] ~= nil and input[key] > args.max[key] then
+            input[key] = args.max[key]
+            set(input)
+        end
+        if args.integer ~= nil then
+            if (type(args.integer) == "boolean" and (args.integer as boolean) == true)
+            or (type(args.integer) == "userdata" and args.integer[key] == true) then
+                input[key] = math.floor(input[key] + 0.5)
+            end
+        end
         
         body.content:add({
             template = I.MWUI.templates.padding,
@@ -418,8 +452,11 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number } , 
                                     if num == nil then
                                         return
                                     end
-                                    if args.integer ~= nil and args.integer[key] == true then
-                                        num = math.floor(num + 0.5)
+                                    if args.integer ~= nil then
+                                        if (type(args.integer) == "boolean" and (args.integer as boolean) == true)
+                                        or (type(args.integer) == "userdata" and args.integer[key] == true) then
+                                            num = math.floor(num + 0.5)
+                                        end
                                     end
                                     if args.min ~= nil and args.min[key] ~= nil and num < args.min[key] then
                                         num = args.min[key]

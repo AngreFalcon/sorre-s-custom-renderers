@@ -62,6 +62,17 @@ I.Settings.registerGroup {
             description = 'Example use-case of the multiselect renderer.',
         },
         {
+            key = 'multiselect2',
+            renderer = 'multiselect',
+            name = 'Multi Select Renderer 2',
+            default = { ["this"] = false, ["example"] = true, ["is"] = false, ["for"] = false, ["multiselect"] = true, },  -- default on/off states for our chosen buttons
+            argument = {
+                keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample", }, -- this list defines our collection of toggleable buttons. if any buttons are given a default value that don't appear in this list, they will be ignored
+				aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are", }, -- this table contains aliases for our buttons, to allow for prettier UI while still retaining descriptive keys for indexing
+            },
+            description = 'Example use-case of the multiselect renderer.',
+        },
+        {
             renderer = "checkbox",
             key = "checkbox",
             name = "Example Checkbox",
@@ -75,7 +86,8 @@ I.Settings.registerGroup {
             default = { num1 = 0.01, num2 = 1.00, }, -- default values for chosen inputs
             argument = { 
                 keys = { "num1", "num2" }, -- the name of each of our number inputs for this setting
-                integer = { num1 = false, num2 = true }, -- whether inputs should be integer only, or floating point values
+                --integer = { num1 = false, num2 = true }, -- whether inputs should be integer only, or floating point values
+                integer = true, -- the integer argument also supports being passed in as just a boolean value, and will force all inputs for this instance of the renderer to an integer or floating point value
                 min = { num1 = -10, num2 = -10, }, -- the minimum allowed input for the given field
                 max = { num1 = 10, num2 = 10, }, -- the maximum allowed input for the given field
                 aliases = { ["num1"] = "Num 1", ["num2"] = "Num 2", }, -- aliases for our keys, to allow displaying prettier text for the end user rather than the key used to index each value
@@ -97,5 +109,9 @@ return {
 		onInit = function()
             storage.playerSection('SettingsSorreCustomRenderersExamples'):setLifeTime(storage.LIFE_TIME.Temporary as storage.LifeTime)
 		end,
+        onUpdate = function()
+            --local settings = storage.playerSection('SettingsSorreCustomRenderersExamples'):get("multinumber") as { string: number }
+            --print(settings["num1"])
+        end,
 	}
 }

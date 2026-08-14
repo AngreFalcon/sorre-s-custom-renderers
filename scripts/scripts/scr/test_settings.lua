@@ -62,6 +62,17 @@ I.Settings.registerGroup({
          description = 'Example use-case of the multiselect renderer.',
       },
       {
+         key = 'multiselect2',
+         renderer = 'multiselect',
+         name = 'Multi Select Renderer 2',
+         default = { ["this"] = false, ["example"] = true, ["is"] = false, ["for"] = false, ["multiselect"] = true },
+         argument = {
+            keys = { "example", "for", "multiselect", "reallyreallyreallyreallyreallyreallylongexample" },
+            aliases = { ["this"] = "these", ["example"] = "examples", ["is"] = "are" },
+         },
+         description = 'Example use-case of the multiselect renderer.',
+      },
+      {
          renderer = "checkbox",
          key = "checkbox",
          name = "Example Checkbox",
@@ -75,7 +86,8 @@ I.Settings.registerGroup({
          default = { num1 = 0.01, num2 = 1.00 },
          argument = {
             keys = { "num1", "num2" },
-            integer = { num1 = false, num2 = true },
+
+            integer = true,
             min = { num1 = -10, num2 = -10 },
             max = { num1 = 10, num2 = 10 },
             aliases = { ["num1"] = "Num 1", ["num2"] = "Num 2" },
@@ -96,6 +108,10 @@ return {
    engineHandlers = {
       onInit = function()
          storage.playerSection('SettingsSorreCustomRenderersExamples'):setLifeTime(storage.LIFE_TIME.Temporary)
+      end,
+      onUpdate = function()
+         local settings = storage.playerSection('SettingsSorreCustomRenderersExamples'):get("multinumber")
+
       end,
    },
 }
