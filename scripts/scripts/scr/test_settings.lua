@@ -110,8 +110,8 @@ return {
          storage.playerSection('SettingsSorreCustomRenderersExamples'):setLifeTime(storage.LIFE_TIME.Temporary)
       end,
       onUpdate = function()
-         local settings = storage.playerSection('SettingsSorreCustomRenderersExamples'):get("multinumber")
-
+         local settings = storage.playerSection('SettingsSorreCustomRenderersExamples'):get("multiselect")
+         print(settings["example"])
       end,
    },
 }

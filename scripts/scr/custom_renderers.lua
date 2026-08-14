@@ -231,11 +231,51 @@ local function updateButton(state, element)
    element:update()
 end
 
+local function unpackButtonStates(userData, defaultState)
+   local states = {}
+
+
+   states.disabled = {}
+   if userData ~= nil and userData.disabled ~= nil then
+      states.disabled.color = userData.disabled.color
+      states.disabled.alpha = userData.disabled.alpha
+   end
+   states.disabled.color = states.disabled.color or defaultState.color
+   states.disabled.alpha = states.disabled.alpha or 0.5
+
+   states.enabled = {}
+   if userData ~= nil and userData.enabled ~= nil then
+      states.enabled.color = userData.enabled.color
+      states.enabled.alpha = userData.enabled.alpha
+   end
+   states.enabled.color = states.enabled.color or defaultState.color
+   states.enabled.alpha = states.enabled.alpha or defaultState.alpha
+
+   states.hover = {}
+   if userData ~= nil and userData.hover ~= nil then
+      states.hover.color = userData.hover.color
+      states.hover.alpha = userData.hover.alpha
+   end
+   states.hover.color = states.hover.color or defaultState.color
+   states.hover.alpha = states.hover.alpha or ((states.enabled.alpha + states.disabled.alpha) / 2)
+
+   states.interacted = {}
+   if userData ~= nil and userData.interacted ~= nil then
+      states.interacted.color = userData.interacted.color
+      states.interacted.alpha = userData.interacted.alpha
+   end
+   states.interacted.color = states.interacted.color or states.hover.color
+   states.interacted.alpha = states.interacted.alpha or states.hover.alpha
+
+   return states
+end
+
 
 
 I.Settings.registerRenderer('multiselect', function(input, set, args)
    local buttonWidth = 80
    local buttonHeld = false
+   local states
    if input == nil then input = {} end
    if args == nil then args = {} end
    if args.keys ~= nil then
@@ -243,10 +283,9 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
          input[text] = input[text] or false
       end
    end
-   if args.buttonWidth ~= nil and args.buttonWidth > -1 then
+   if args.buttonWidth ~= nil then
       buttonWidth = args.buttonWidth
    end
-   local state = args.buttonStates or {}
 
    local body = {
       type = ui.TYPE.Flex,
@@ -270,31 +309,18 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
          },
       }, {})
 
+
       buttonDefault.color = (buttonText.layout.props.textColor)
       buttonDefault.alpha = (buttonText.layout.props.alpha) or 1.0
+      states = unpackButtonStates(args.buttonStates, buttonDefault)
 
-      if state.disabled == nil then state.disabled = {} end
-      state.disabled.color = state.disabled.color or buttonDefault.color
-      state.disabled.alpha = state.disabled.alpha or 0.5
-
-      if state.enabled == nil then state.enabled = {} end
-      state.enabled.color = state.enabled.color or buttonDefault.color
-      state.enabled.alpha = state.enabled.alpha or buttonDefault.alpha
-
-      if state.hover == nil then state.hover = {} end
-      state.hover.color = state.hover.color or buttonDefault.color
-      state.hover.alpha = state.hover.alpha or ((state.enabled.alpha + state.disabled.alpha) / 2)
-
-      if state.interacted == nil then state.interacted = {} end
-      state.interacted.color = state.interacted.color or state.hover.color
-      state.interacted.alpha = state.interacted.alpha or state.hover.alpha
 
       if input[key] == true then
-         buttonText.layout.props.alpha = state.enabled.alpha
-         buttonText.layout.props.textColor = state.enabled.color
+         buttonText.layout.props.textColor = states.enabled.color
+         buttonText.layout.props.alpha = states.enabled.alpha
       else
-         buttonText.layout.props.alpha = state.disabled.alpha
-         buttonText.layout.props.textColor = state.disabled.color
+         buttonText.layout.props.textColor = states.disabled.color
+         buttonText.layout.props.alpha = states.disabled.alpha
       end
 
       body.content:add({
@@ -326,32 +352,31 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
          }, }),
          events = {
             mouseClick = async:callback(function()
-               input[key] = input[key] == false
-               set(input)
+               ambient.playSound('menu click', {})
             end),
             mousePress = async:callback(function()
-               ambient.playSound('menu click', {})
-               updateButton(state.interacted, buttonText)
                buttonHeld = true
+               updateButton(states.interacted, buttonText)
             end),
             mouseRelease = async:callback(function()
-               updateButton(state.hover, buttonText)
-               print("release")
+               updateButton(states.hover, buttonText)
                buttonHeld = false
+               input[key] = input[key] == false
             end),
             focusGain = async:callback(function()
                if buttonHeld == false then
-                  updateButton(state.hover, buttonText)
+                  updateButton(states.hover, buttonText)
                end
             end),
             focusLoss = async:callback(function()
                if buttonHeld == false then
                   if input[key] == true then
-                     updateButton(state.enabled, buttonText)
+                     updateButton(states.enabled, buttonText)
                   else
-                     updateButton(state.disabled, buttonText)
+                     updateButton(states.disabled, buttonText)
                   end
                end
+               set(input)
             end),
          },
       })
