@@ -1,2 +1,2 @@
-MENU: scripts/scr/custom_renderers.lua
-PLAYER: scripts/scr/test_settings.lua
+MENU: scripts/SorresCustomRenderers/custom_renderers.lua
+PLAYER: scripts/SorresCustomRenderers/test_settings.lua
