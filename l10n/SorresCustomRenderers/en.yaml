@@ -1,0 +1,32 @@
+page_name: Sorre's Custom Renderers - Examples
+page_description: Example settings page for Sorre's custom renderers.
+
+example_group_name: Example Settings
+example_group_desc: Examples for Sorre's custom renderers.
+
+text_set_name: Text Set Renderer
+text_set_desc: Example use-case of the textset renderer.
+text_set_remove_text: x
+
+multiselect_name: Multi Select Renderer
+multiselect_desc: Example use-case of the multiselect renderer.
+multiselect_this_alias: these
+multiselect_example_alias: examples
+multiselect_is_alias: are
+
+multiselect2_name: Multi Select Renderer 2
+multiselect2_desc: Example use-case of the multiselect renderer.
+multiselect2_this_alias: these
+multiselect2_example_alias: examples
+multiselect2_is_alias: are
+
+checkbox_name: Example Checkbox
+checkbox_desc: Example checkbox renderer for comparison against multiselect renderer.
+
+multinumber_name: Multi Number Renderer
+multinumber_desc: Example use-case of the multinumber renderer.
+multinumber_num1_alias: Num 1
+multinumber_num2_alias: Num 2
+
+number_name: Example Number
+number_desc: Example number renderer for comparison against multinumber renderer.
