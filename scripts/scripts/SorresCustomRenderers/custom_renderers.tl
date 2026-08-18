@@ -420,29 +420,35 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number }, s
 
     for _, key in ipairs(args.keys) do
         local label: string = key
+        local min: number = nil
+        local max: number = nil
+        local integer: boolean = nil
+
         if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
-        if args.min ~= nil then
-            if type(args.min) == "number" and input[key] < (args.min as number) then
-                input[key] = (args.min as number)
-                set(input)
-            elseif type(args.min) == "userdata" and args.min[key] ~= nil and input[key] < args.min[key] then
-                input[key] = args.min[key]
-                set(input)
-            end
-        elseif args.max ~= nil then
-            if type(args.max) == "number" and input[key] > (args.max as number) ~= nil then
-                input[key] = (args.max as number)
-                set(input)
-            elseif type(args.max) == "userdata" and args.max[key] ~= nil and input[key] > args.max[key] then
-                input[key] = args.max[key]
-                set(input)
-            end
+        if type(args.min) == "number" then
+            min = args.min as number
+        elseif type(args.min) == "userdata" and args.min ~= nil then
+            min = args.min[key]
         end
-        if args.integer ~= nil then
-            if (type(args.integer) == "boolean" and (args.integer as boolean) == true)
-            or (type(args.integer) == "userdata" and args.integer[key] == true) then
-                input[key] = math.floor(input[key] + 0.5)
-            end
+        if type(args.max) == "number" then
+            max = args.max as number
+        elseif type(args.max) == "userdata" and args.max ~= nil then
+            max = args.max[key]
+        end
+        if type(args.integer) == "boolean" then
+            integer = args.integer as boolean
+        elseif type(args.integer) == "userdata" and args.integer ~= nil then
+            integer = args.integer[key]
+        end
+
+        if min ~= nil and input[key] < min then
+            input[key] = min
+            set(input)
+        elseif max ~= nil and input[key] > max then
+            input[key] = max
+            set(input)
+        elseif integer == true then
+            input[key] = math.floor(input[key] + 0.5)
         end
         
         body.content:add({
@@ -487,24 +493,12 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number }, s
                                     if num == nil then
                                         return
                                     end
-                                    if args.integer ~= nil then
-                                        if (type(args.integer) == "boolean" and (args.integer as boolean) == true)
-                                        or (type(args.integer) == "userdata" and args.integer[key] == true) then
-                                            num = math.floor(num + 0.5)
-                                        end
-                                    end
-                                    if args.min ~= nil then
-                                        if type(args.min) == "number" and num < (args.min as number) then
-                                            num = args.min as number
-                                        elseif type(args.min) == "userdata" and args.min[key] ~= nil and num < args.min[key] then
-                                            num = args.min[key]
-                                        end
-                                    elseif args.max ~= nil then
-                                        if type(args.max) == "number" and num > (args.max as number) then
-                                            num = args.max as number
-                                        elseif type(args.max) == "userdata" and args.max[key] ~= nil and num > args.max[key] then
-                                            num = args.max[key]
-                                        end
+                                    if min ~= nil and num < min then
+                                        num = min
+                                    elseif max ~= nil and num > max then
+                                        num = max
+                                    elseif integer == true then
+                                        num = math.floor(num + 0.5)
                                     end
                                     input[key] = num
                                     set(input)
