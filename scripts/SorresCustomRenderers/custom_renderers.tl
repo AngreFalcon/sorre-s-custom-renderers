@@ -401,10 +401,15 @@ end
 I.Settings.registerRenderer('multinumber', function(input: { string: number }, set: function, args: MultiNumArgs): any
     local lastInput: { string: number } = {}
     if args == nil then args = {} end
+    if input == nil then input = {} end
+    if type(input) == "number" then
+        local default = input as number
+        input = { default = default }
+    end
 	if args.keys ~= nil then
         for _, k in ipairs(args.keys) do
             if input[k] == nil then
-                input[k] = 0
+                input[k] = input.default or 0
             end
         end
 	end
