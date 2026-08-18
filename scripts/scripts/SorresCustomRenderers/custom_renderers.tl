@@ -421,12 +421,22 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number }, s
     for _, key in ipairs(args.keys) do
         local label: string = key
         if args.aliases ~= nil and args.aliases[key] ~= nil then label = args.aliases[key] end
-        if args.min ~= nil and args.min[key] ~= nil and input[key] < args.min[key] then
-            input[key] = args.min[key]
-            set(input)
-        elseif args.max ~= nil and args.max[key] ~= nil and input[key] > args.max[key] then
-            input[key] = args.max[key]
-            set(input)
+        if args.min ~= nil then
+            if type(args.min) == "number" and input[key] < (args.min as number) then
+                input[key] = (args.min as number)
+                set(input)
+            elseif type(args.min) == "userdata" and args.min[key] ~= nil and input[key] < args.min[key] then
+                input[key] = args.min[key]
+                set(input)
+            end
+        elseif args.max ~= nil then
+            if type(args.max) == "number" and input[key] > (args.max as number) ~= nil then
+                input[key] = (args.max as number)
+                set(input)
+            elseif type(args.max) == "userdata" and args.max[key] ~= nil and input[key] > args.max[key] then
+                input[key] = args.max[key]
+                set(input)
+            end
         end
         if args.integer ~= nil then
             if (type(args.integer) == "boolean" and (args.integer as boolean) == true)
@@ -483,10 +493,18 @@ I.Settings.registerRenderer('multinumber', function(input: { string: number }, s
                                             num = math.floor(num + 0.5)
                                         end
                                     end
-                                    if args.min ~= nil and args.min[key] ~= nil and num < args.min[key] then
-                                        num = args.min[key]
-                                    elseif args.max ~= nil and args.max[key] ~= nil and num > args.max[key] then
-                                        num = args.max[key]
+                                    if args.min ~= nil then
+                                        if type(args.min) == "number" and num < (args.min as number) then
+                                            num = args.min as number
+                                        elseif type(args.min) == "userdata" and args.min[key] ~= nil and num < args.min[key] then
+                                            num = args.min[key]
+                                        end
+                                    elseif args.max ~= nil then
+                                        if type(args.max) == "number" and num > (args.max as number) then
+                                            num = args.max as number
+                                        elseif type(args.max) == "userdata" and args.max[key] ~= nil and num > args.max[key] then
+                                            num = args.max[key]
+                                        end
                                     end
                                     input[key] = num
                                     set(input)
