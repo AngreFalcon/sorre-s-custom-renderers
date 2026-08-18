@@ -278,9 +278,13 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
    local states
    if input == nil then input = {} end
    if args == nil then args = {} end
+   if type(input) == "boolean" then
+      local default = input
+      input = { default = default }
+   end
    if args.keys ~= nil then
       for _, text in ipairs(args.keys) do
-         input[text] = input[text] or false
+         input[text] = input[text] or input.default or false
       end
    end
    if args.buttonWidth ~= nil then
@@ -408,9 +412,7 @@ I.Settings.registerRenderer('multinumber', function(input, set, args)
    end
    if args.keys ~= nil then
       for _, k in ipairs(args.keys) do
-         if input[k] == nil then
-            input[k] = input.default or 0
-         end
+         input[k] = input[k] or input.default or 0
       end
    end
 
