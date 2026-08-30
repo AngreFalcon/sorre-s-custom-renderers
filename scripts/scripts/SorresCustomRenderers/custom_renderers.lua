@@ -1,4 +1,4 @@
-local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; local I = require('openmw.interfaces')
+local _tl_compat; if (tonumber((_VERSION or ''):match('[%d.]*$')) or 0) < 5.3 then local p, m = pcall(require, 'compat53.module'); if p then _tl_compat = m end end; local ipairs = _tl_compat and _tl_compat.ipairs or ipairs; local math = _tl_compat and _tl_compat.math or math; local pairs = _tl_compat and _tl_compat.pairs or pairs; local string = _tl_compat and _tl_compat.string or string; local table = _tl_compat and _tl_compat.table or table; local I = require('openmw.interfaces')
 local ui = require('openmw.ui')
 local async = require('openmw.async')
 local util = require('openmw.util')
@@ -276,6 +276,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
    local buttonWidth = 80
    local buttonHeld = false
    local states
+   local renderKeys = {}
    if input == nil then input = {} end
    if args == nil then args = {} end
    if type(input) == "boolean" then
@@ -284,6 +285,7 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
    end
    if args.keys ~= nil then
       for _, text in ipairs(args.keys) do
+         renderKeys[#renderKeys + 1] = text
          input[text] = input[text] or input.default or false
       end
    end
@@ -300,7 +302,8 @@ I.Settings.registerRenderer('multiselect', function(input, set, args)
       content = ui.content({}),
    }
 
-   for _, key in ipairs(args.keys) do
+   table.sort(renderKeys)
+   for _, key in ipairs(renderKeys) do
       local buttonDefault = {}
       local label = key
 

@@ -276,6 +276,7 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
     local buttonWidth: integer = 80
     local buttonHeld: boolean = false
     local states: ButtonStates
+    local renderKeys: { string } = {}
     if input == nil then input = {} end
     if args == nil then args = {} end
     if type(input) == "boolean" then
@@ -284,6 +285,7 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
     end
 	if args.keys ~= nil then
 		for _, text in ipairs(args.keys) do
+            renderKeys[#renderKeys + 1] = text
             input[text] = input[text] or input.default or false
 		end
 	end
@@ -300,7 +302,8 @@ I.Settings.registerRenderer('multiselect', function(input: { string: boolean }, 
         content = ui.content({}),
     }
     
-    for _, key in ipairs(args.keys) do
+    table.sort(renderKeys)
+    for _, key in ipairs(renderKeys) do
         local buttonDefault: ButtonLabel = {}
         local label: string = key
 
